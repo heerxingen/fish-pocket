@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
-import IosCall, { LEASE_MS, NOTE, SOURCE, onCall, setCall } from '../plugins/ios-call/index.mjs';
+import IosCall, { LEASE_MS, NOTE, SAID_SOURCE, SOURCE, onCall, setCall } from '../plugins/ios-call/index.mjs';
 
 /** A context that keeps the routes and the pre-step handler the plugin registers. */
 function fakeContext() {
@@ -81,4 +81,57 @@ test('a malformed request is refused', async () => {
   assert.equal((await state(plugin.routes, 'not json')).status, 400);
   assert.equal((await state(plugin.routes, { sessionId: '', active: true })).status, 400);
   assert.equal((await state(plugin.routes, { sessionId: 's1' })).status, 400);
+  assert.equal((await said(plugin.routes, 'not json')).status, 400);
+  assert.equal((await said(plugin.routes, { sessionId: 's1', text: '  ' })).status, 400);
+  assert.equal((await said(plugin.routes, { sessionId: 's1', text: 'x'.repeat(501) })).status, 400);
+});
+
+const said = (routes, body) => routes.get('/api/ios-call/said').fetch(
+  new Request('http://x/api/ios-call/said', { method: 'POST', body: typeof body === 'string' ? body : JSON.stringify(body) }),
+);
+
+test('what the app said aloud between turns reaches the next turn, before the user\'s words', async () => {
+  const plugin = fakeContext();
+  dispose = plugin.dispose;
+  await state(plugin.routes, { sessionId: 's1', active: true });
+  const response = await said(plugin.routes, { sessionId: 's1', text: '还在吗？没声音的话我先挂了' });
+  assert.equal(response.status, 200);
+  await said(plugin.routes, { sessionId: 's1', text: '还在吗？' });
+
+  const proposed = [{ role: 'user', content: [{ type: 'text', text: '在的' }] }];
+  const decision = await step(plugin.preStep, 's1', { messages: proposed });
+  assert.equal(decision.messages.length, 3);
+  const [spoken, words, note] = decision.messages;
+  assert.equal(spoken.role, 'user');
+  assert.equal(spoken.source.kind, SAID_SOURCE);
+  assert.match(spoken.content[0].text, /"还在吗？没声音的话我先挂了"\n"还在吗？"/);
+  assert.equal(words, proposed[0]);
+  assert.equal(note.source.kind, SOURCE);
+
+  // Told once: the next turn has it in its history already.
+  assert.equal((await step(plugin.preStep, 's1')).messages.length, 2);
+});
+
+test('what was said waits through later steps and retries, and goes with the call', async () => {
+  const plugin = fakeContext();
+  dispose = plugin.dispose;
+  await state(plugin.routes, { sessionId: 's1', active: true });
+  await said(plugin.routes, { sessionId: 's1', text: '还在吗？' });
+  await step(plugin.preStep, 's1', { number: 2 });
+  await step(plugin.preStep, 's1', { messages: [] });
+  await step(plugin.preStep, 's1', { aborted: true });
+  assert.equal((await step(plugin.preStep, 's2')).messages.length, 1, 'other sessions are left alone');
+  assert.equal((await step(plugin.preStep, 's1')).messages[0].source.kind, SAID_SOURCE);
+
+  // Hanging up after it: a turn typed later is not on that call and answers nothing.
+  await said(plugin.routes, { sessionId: 's1', text: '还在吗？' });
+  await state(plugin.routes, { sessionId: 's1', active: false });
+  await state(plugin.routes, { sessionId: 's1', active: true });
+  assert.equal((await step(plugin.preStep, 's1')).messages.length, 2);
+
+  // Said when the call is already over: dropped.
+  await state(plugin.routes, { sessionId: 's1', active: false });
+  await said(plugin.routes, { sessionId: 's1', text: '还在吗？' });
+  await state(plugin.routes, { sessionId: 's1', active: true });
+  assert.equal((await step(plugin.preStep, 's1')).messages.length, 2);
 });

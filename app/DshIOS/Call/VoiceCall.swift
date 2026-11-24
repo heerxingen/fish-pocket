@@ -546,15 +546,20 @@ final class VoiceCall {
         log("nobody talked for \(Int(Self.idleLimit)) s: asking")
         idleDeadline = now.addingTimeInterval(Self.idleGrace)
         Haptics.warning()
-        // Said by the synthesis directly; the conversation does not see it.
+        // Said by the synthesis directly, without a turn; the engine is told, so the model knows
+        // it asked when the user answers.
         if let synthesizer, reply == nil, !inTurn, !armed {
             let id = synthesizer.begin()
             reply = id
             replyMade = false
             sentence = 0
             unheard = [:]
-            synthesizer.say(String(localized: "还在吗？没声音的话我先挂了"), reply: id)
+            let question = String(localized: "还在吗？没声音的话我先挂了")
+            synthesizer.say(question, reply: id)
             synthesizer.end(reply: id)
+            replyText = question
+            recognizer?.setContext(context())
+            post("said", ["sessionId": sessionId, "text": question])
         }
     }
 
@@ -580,13 +585,18 @@ final class VoiceCall {
     }
 
     private func report(active: Bool) {
+        post("state", ["sessionId": sessionId, "active": active])
+    }
+
+    /// `POST /api/ios-call/<path>` (`engine/plugins/ios-call`), without waiting for it.
+    private func post(_ path: String, _ body: [String: Any]) {
         let client = app.client
-        let sessionId = sessionId
+        let data = try? JSONSerialization.data(withJSONObject: body)
         Task.detached {
-            var request = client.request(client.origin.appendingPathComponent("api/ios-call/state"))
+            var request = client.request(client.origin.appendingPathComponent("api/ios-call/\(path)"))
             request.httpMethod = "POST"
             request.setValue("application/json", forHTTPHeaderField: "content-type")
-            request.httpBody = try? JSONSerialization.data(withJSONObject: ["sessionId": sessionId, "active": active])
+            request.httpBody = data
             request.timeoutInterval = 10
             _ = try? await client.session.data(for: request)
         }
