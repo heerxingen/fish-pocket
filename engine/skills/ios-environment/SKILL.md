@@ -70,6 +70,10 @@ Pipes, redirects, `&&`, `||`, variables, arrays, functions, loops, here-document
 - `/etc`, `/usr/share` and `/System` are the real system and read-only. `/opt/dsh` is the app itself and read-only.
 - `/bin` and `/usr/bin` exist only in the shell, for its commands. A Node script sees just one file there: `/usr/bin/node`, a placeholder so programs that look `node` up on `PATH` before spawning it find it.
 
+## While the user is away
+
+iOS suspends the app about 30 seconds after the user leaves it, and that pauses you, dev servers and everything else until they come back. The app stays running off screen only while something here needs it: a turn in progress, a running background job, or a switched-on automation, and only if the user has not turned that off in the app's settings (后台运行). They see this list in the app's 待办 (To-do) tab. A session on one of their computers (remote control) does not count: it runs there.
+
 ## Node
 
 Node 24 runs in jitless mode: pure JavaScript is several times slower than on a desktop, and most work is unaffected.

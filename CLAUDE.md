@@ -208,7 +208,7 @@ Bot 没有照片时显示的角色是 App 自己画的，形状和动作都写�
 
 ## 首页布局：系统的自适应 Tab
 
-iOS 18 起，iPhone、iPhone Duo、iPad 共用一套系统 `TabView`，样式是 `sidebarAdaptable`（`MainView.tabLayout`）：「会话 · Bot · 小工具 · 探索」四个 Tab，设置是探索页的一页，从它右上角的齿轮进入（`SettingsView(pushed: true)`），窄屏在底部，宽屏由系统放到顶部或换成侧边栏，Duo 展开时是右侧的竖条。宽窄切换（Duo 开合、iPad 拖窗口）不换布局，Tab 保持不变。iOS 17 的 iPhone 用同样四个 Tab，只是换成旧写法（`TabView` 加 `.tabItem`，`MainView.phoneTabLayout`），Tab 栏始终在底部，页面和行为与 iOS 18 起的一致。iOS 17 的 iPad 仍是旧布局：常驻侧边栏，窄窗口是抽屉（`DrawerView` 的 `sidebar` 样式，`MainView.split` / `drawerLayout`）；旧写法的 Tab 栏在 iPad 上也只能放底部，所以没改。iPhone Duo 只有 iOS 27，不涉及旧版本。
+iOS 18 起，iPhone、iPhone Duo、iPad 共用一套系统 `TabView`，样式是 `sidebarAdaptable`（`MainView.tabLayout`）：「会话 · Bot · 小工具 · 待办 · 探索」五个 Tab，设置是探索页的一页，从它右上角的齿轮进入（`SettingsView(pushed: true)`），窄屏在底部，宽屏由系统放到顶部或换成侧边栏，Duo 展开时是右侧的竖条。宽窄切换（Duo 开合、iPad 拖窗口）不换布局，Tab 保持不变。iOS 17 的 iPhone 用同样五个 Tab，只是换成旧写法（`TabView` 加 `.tabItem`，`MainView.phoneTabLayout`），Tab 栏始终在底部，页面和行为与 iOS 18 起的一致。iOS 17 的 iPad 仍是旧布局：常驻侧边栏，窄窗口是抽屉（`DrawerView` 的 `sidebar` 样式，`MainView.split` / `drawerLayout`）；旧写法的 Tab 栏在 iPad 上也只能放底部，所以没改。iPhone Duo 只有 iOS 27，不涉及旧版本。
 
 - **会话 Tab**：窄屏是列表，点开会话推入新页面；宽屏是列表和会话并排的分栏（`sessionsSplit`），没有选中时自动开一个空白会话，和旧分栏一样。这层分栏照旧分栏的规矩：列宽固定、从 27.1 起保留系统侧栏按钮（`systemSidebarButton`，否则 Duo 会卡死）、Duo 半开时避开折痕（`PastTheFold`）。
 - **新增一个全局入口**（像插件、连接器、本机能力、操控手机、远程控制、网页版这类），要同时加到 `ExploreTabView` 和 `DrawerView` 侧边栏的那几行里：后者是 iOS 17 上 iPad 的入口，漏了 iOS 17 的 iPad 用户就找不到。
@@ -221,6 +221,15 @@ iOS 18 起，iPhone、iPhone Duo、iPad 共用一套系统 `TabView`，样式是
 - **分栏左侧的列表不用系统的选中（`List(selection:)`）。**列表拿到焦点后（切走 Tab 再切回来），系统用主色画选中行，而主色是写名字用的墨色：深色模式下整行变白、名字看不见。Bot 列表在并排时每行是一个按钮，自己设置选中的路由，选中行的底色用 `listRowBackground` 画（`BotHomeView.row`、`pickedFill`），和会话列表的做法一样。不要用给列表改主色的办法去盖系统的选中色，主色会漏到同一栏的工具栏按钮上（iOS 18 上「⋯」会看不见）。
 - 窄屏时会话、Bot 聊天、群聊推入后 Tab 栏照样显示，输入框在它上面，所以聊天页底部不要再放别的东西（「内容由 AI 生成」放在标题下面，Bot 和群聊接在标题第二行后面，见 `AILabelledSubtitle`）。iPhone 上 Tab 栏只显示图标，文字只给读屏用；iPad 保留文字，因为 iPadOS 顶部的 Tab 栏只显示文字。
 - **并排在会话旁边的面板（工作台）不要自带 `NavigationStack`。**它已经在会话所在的导航栈里，再套一层会被 SwiftUI 并进外层的栈，连路径一起接管：外层是 Bot 页那种定类型路径时，路径下次变化就闪退（`AnyNavigationPath.Error.comparisonTypeMismatch`，TestFlight 上 iPad 的闪退就是它）；不闪退的布局里，之后推入的页面不显示。面板里的下级页面用 `NavigationLink { 页面 }` 直接推到会话的栈上，不用按值跳转（`NavigationLink(value:)`），值的类型和外层路径对不上。弹出层里的面板是另一棵视图树，可以有自己的栈（`WorkbenchView.beside`）。
+
+## 「待办」Tab 与后台保活
+
+「待办」列出 Agent 在这台手机上有哪些事要做。现在只有一类：需要引擎在后台继续运行的事，包括进行中的会话（含子智能体、Bot、群聊）、后台任务（开发服务器这类，经引擎插件 `engine/plugins/ios-jobs` 一次读全部会话的）、开启的自动化。这份清单就是后台保活的唯一依据（`app/DshIOS/Models/BackgroundWork.swift`）：有内容且「设置 → 后台运行 → 有后台任务时保持运行」开着时，`BackgroundKeeper` 在后台播放静音音频；清单空了 75 秒后停掉音频，让系统照常挂起 App。
+
+- **只算必须本机引擎活着才能进行的事。** 远程控制的会话在电脑上跑，不算；回到 App 时刷新就行。
+- 以后新增一种要在后台继续跑的东西，加进 `BackgroundWork.swift` 的清单和「待办」页的一节，不要在 `BackgroundKeeper` 里另开判断，否则页面上说的和实际保活对不上。
+- 以后加不需要保活的类别（比如「等你处理的」），在页面上单独一节，不进 `keepsAppAlive`。
+- 后台挂起只能在真机上看准，模拟器不按真机的规矩挂起 App。
 
 ## 连接器对谁生效
 

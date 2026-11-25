@@ -3,20 +3,21 @@ import BackgroundTasks
 import SwiftUI
 import UIKit
 
-/// Keeps the engine running while the app is off screen. iOS suspends the whole
-/// process shortly after the app leaves the screen, and with it Node: agent
-/// turns, automations and dev servers all freeze until the app comes back.
+/// Keeps the engine running while the app is off screen and something needs it. iOS suspends
+/// the whole process shortly after the app leaves the screen, and with it Node: agent turns,
+/// automations and dev servers all freeze until the app comes back.
 ///
-/// - Always: a UIKit background task gives in-flight turns the usual ~30 s
-///   grace, ended early once nothing is running.
-/// - The 设置 → 后台运行 →「静音音频」switch (on by default): silent, mixable audio keeps the
-///   process alive for as long as it stays in the background (the `audio`
-///   background mode), so automations and dev servers keep going too. It is an
-///   indirect means, hence the user-facing switch.
+/// - Always: a UIKit background task gives in-flight turns the usual ~30 s grace, ended early
+///   once nothing is running.
+/// - The 设置 → 后台运行 →「有后台任务时保持运行」switch (on by default): while the 待办 tab
+///   lists work that needs this engine (a running session, a background job, a switched-on
+///   automation; `AppModel.keepsAppAlive`), silent, mixable audio keeps the process alive (the
+///   `audio` background mode). Once that list stays empty for `linger`, the audio stops and the
+///   system suspends the app as it would any other; nothing wakes it until the user is back.
 /// - The 设置 → 后台运行 →「任务续跑」switch (iOS 26+, off by default): a
-///   `BGContinuedProcessingTask` when the app leaves the screen with sessions
-///   running, so a turn can finish off screen; the system shows its progress and
-///   the user can stop it there. Not submitted for work the user watches to the end.
+///   `BGContinuedProcessingTask` when the app leaves the screen with sessions running, so a turn
+///   can finish off screen; the system shows its progress and the user can stop it there. Not
+///   submitted for work the user watches to the end.
 @MainActor
 final class BackgroundKeeper {
     static let shared = BackgroundKeeper()
@@ -24,8 +25,11 @@ final class BackgroundKeeper {
     static let continuedKey = "continuedProcessing"
     /// Matches `BGTaskSchedulerPermittedIdentifiers` in project.yml.
     private static let taskPrefix = (Bundle.main.bundleIdentifier ?? "com.wsw.dsh-ios") + ".task"
+    /// How long the audio outlasts the work: a group's members answer one after another, a
+    /// subagent hands back, an agent starts its next round, each after a short gap.
+    private static let linger: Duration = .seconds(75)
 
-    /// Silent audio.
+    /// Keep running while there is work.
     var enabled: Bool { UserDefaults.standard.object(forKey: Self.enabledKey) as? Bool ?? true }
     /// Continued-processing tasks.
     var continuedEnabled: Bool { UserDefaults.standard.bool(forKey: Self.continuedKey) }
@@ -33,11 +37,16 @@ final class BackgroundKeeper {
     private var inBackground = false
     /// Between losing focus and going to the background: the last moment a continued task can be submitted.
     private var leaving = false
+    /// Titles of the places with sessions at work (the continued task's subtitle).
     private var running: [String] = []
+    /// Anything that needs the engine: sessions, jobs, automations.
+    private var busy = false
     /// Re-reads the session list; set by the current engine connection.
     private var refresh: (() async -> Void)?
     private var grace: UIBackgroundTaskIdentifier = .invalid
     private var pollTask: Task<Void, Never>?
+    /// The wait before the audio stops once the work has run out.
+    private var lingerTask: Task<Void, Never>?
     /// The live `BGContinuedProcessingTask` (typed loosely: the deployment target is iOS 17).
     private var continued: AnyObject?
     private var submitted: String?
@@ -52,17 +61,28 @@ final class BackgroundKeeper {
         self.refresh = refresh
     }
 
-    /// The titles of running sessions, after every session-list refresh. Each
-    /// refresh follows engine activity, so while busy it also counts as progress.
-    func update(running titles: [String]) {
+    /// After every change to what the 待办 tab lists: the places with sessions at work, and
+    /// whether anything at all needs the engine. Each refresh follows engine activity, so while
+    /// busy it also counts as progress.
+    func update(running titles: [String], keepAlive: Bool) {
         running = titles
+        busy = keepAlive
         if titles.isEmpty {
             finishContinued()
-            if inBackground && !enabled { endGrace() }
-            return
+        } else {
+            if leaving { startContinued() }
+            tick()
         }
-        if leaving { startContinued() }
-        tick()
+        guard inBackground else { return }
+        if !enabled {
+            if titles.isEmpty { endGrace() }
+        } else if busy {
+            lingerTask?.cancel()
+            lingerTask = nil
+            audio.start()
+        } else if audio.playing {
+            settle()
+        }
     }
 
     /// A switch changed; while off screen it takes effect at once. Turning 任务续跑
@@ -71,7 +91,7 @@ final class BackgroundKeeper {
     func settingsChanged() {
         if !continuedEnabled { finishContinued() }
         guard inBackground else { return }
-        if enabled { audio.start() } else { audio.stop() }
+        if enabled && busy { audio.start() } else { stopKeeping() }
     }
 
     func scenePhaseChanged(to phase: ScenePhase) {
@@ -80,14 +100,16 @@ final class BackgroundKeeper {
             leaving = false
             inBackground = false
             pollTask?.cancel()
-            audio.stop()
+            stopKeeping()
             endGrace()
         case .background:
             leaving = false
             guard !inBackground else { return }
             inBackground = true
             beginGrace()
-            if enabled { audio.start() }
+            // Nothing to keep: the grace lets the engine finish what it is writing, then the
+            // system suspends the app. Work that turns up within it still starts the audio.
+            if enabled && busy { audio.start() }
             poll()
         default:
             // Still in the foreground: submit for what is running, and refresh for
@@ -96,6 +118,30 @@ final class BackgroundKeeper {
             if leaving { startContinued() }
             Task { await refresh?() }
         }
+    }
+
+    // MARK: Keeping alive
+
+    /// The work ran out while the audio plays: after `linger`, one more look, then let go.
+    private func settle() {
+        guard lingerTask == nil else { return }
+        lingerTask = Task { [weak self] in
+            try? await Task.sleep(for: Self.linger)
+            guard !Task.isCancelled else { return }
+            await self?.refresh?()
+            guard let self, !Task.isCancelled else { return }
+            self.lingerTask = nil
+            guard self.inBackground, !self.busy else { return }
+            print("[keepalive] nothing left to run; letting the system suspend the app")
+            self.stopKeeping()
+            self.endGrace()
+        }
+    }
+
+    private func stopKeeping() {
+        lingerTask?.cancel()
+        lingerTask = nil
+        audio.stop()
     }
 
     // MARK: Grace period
@@ -202,6 +248,8 @@ private final class SilentAudio {
     private var engine: AVAudioEngine?
     private var observers: [NSObjectProtocol] = []
 
+    var playing: Bool { engine != nil }
+
     func start() {
         guard engine == nil else { return }
         do {
@@ -219,6 +267,7 @@ private final class SilentAudio {
             player.scheduleBuffer(buffer, at: nil, options: .loops)
             player.play()
             self.engine = engine
+            print("[keepalive] silent audio on")
         } catch {
             print("[keepalive] silent audio failed: \(error)")
             return
@@ -242,6 +291,7 @@ private final class SilentAudio {
         guard let engine else { return }
         engine.stop()
         self.engine = nil
+        print("[keepalive] silent audio off")
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 

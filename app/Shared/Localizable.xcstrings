@@ -5808,6 +5808,48 @@
         }
       }
     },
+    "tab.todo" : {
+      "comment" : "Tab and page title: what the agents have under way on this phone (running sessions, background jobs, automations)",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To-Do"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pendientes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "やること"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "할 일"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待办"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待辦"
+          }
+        }
+      }
+    },
     "一支常驻的 Bot 团队：可以私聊，可以拉群一起商量，也能到点自己开工。入口在侧边栏。" : {
       "localizations" : {
         "en" : {
@@ -6552,6 +6594,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪除這段錄影？"
+          }
+        }
+      }
+    },
+    "到点时要 App 在运行才会执行。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They run on time only if the app is running then."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo se ejecutan a su hora si la app está funcionando en ese momento."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "時刻になったときに App が動いていないと実行されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정해진 시간에 앱이 실행 중이어야 실행돼요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "時間到時 App 要在執行中才會執行。"
           }
         }
       }
@@ -10056,6 +10132,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "沒有配對的 Apple Watch"
+          }
+        }
+      }
+    },
+    "没有需要后台运行的事" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing needs to run in the background"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay nada que deba ejecutarse en segundo plano"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックグラウンドで動かす必要のある作業はありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백그라운드에서 실행할 작업이 없어요"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有需要在背景執行的事"
           }
         }
       }
@@ -15620,6 +15730,74 @@
         }
       }
     },
+    "「待办」里有进行中的会话、后台任务或开启的自动化时，离开 App 后播放无声音频让它们继续运行，会多耗一些电；都没有时不做额外保活，App 照常被系统暂停，回来时自动恢复。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When To-Do lists a running session, a background job or an automation that's on, silent audio plays after you leave the app so they keep running. This uses a bit more battery. When there's nothing, nothing extra is done: the system pauses the app as usual, and it picks up again when you come back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando Pendientes muestra una sesión en curso, una tarea en segundo plano o una automatización activada, al salir de la app se reproduce audio silencioso para que sigan funcionando. Consume un poco más de batería. Si no hay nada, no se hace nada más: el sistema pausa la app como siempre y se reanuda cuando vuelves."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「やること」に実行中のセッション、バックグラウンドジョブ、オンのオートメーションがあるときは、App を離れた後も無音のオーディオを再生して動かし続けます。バッテリーの消費が少し増えます。何もないときは特に何もせず、システムがいつもどおり App を一時停止し、戻ると自動的に再開します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'할 일'에 진행 중인 세션, 백그라운드 작업, 켜진 자동화가 있으면 앱을 떠난 뒤에도 무음 오디오를 재생해 계속 실행해요. 배터리를 조금 더 사용해요. 아무것도 없으면 따로 유지하지 않고, 시스템이 평소처럼 앱을 일시정지했다가 돌아오면 자동으로 다시 이어져요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「待辦」裡有進行中的對話、背景任務或開啟的自動化時，離開 App 後播放無聲音訊讓它們繼續執行，會多耗一些電；都沒有時不做額外保持，App 照常被系統暫停，回來時自動恢復。"
+          }
+        }
+      }
+    },
+    "「待办」里有进行中的会话、后台任务或开启的自动化时，离开 App 后播放无声音频让它们继续运行，会多耗一些电；都没有时不做额外保活，App 照常被系统暂停，回来时自动恢复。音频被来电等打断时，进行中的任务仍会继续跑完。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When To-Do lists a running session, a background job or an automation that's on, silent audio plays after you leave the app so they keep running. This uses a bit more battery. When there's nothing, nothing extra is done: the system pauses the app as usual, and it picks up again when you come back. If a call or the like interrupts the audio, running tasks still finish."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando Pendientes muestra una sesión en curso, una tarea en segundo plano o una automatización activada, al salir de la app se reproduce audio silencioso para que sigan funcionando. Consume un poco más de batería. Si no hay nada, no se hace nada más: el sistema pausa la app como siempre y se reanuda cuando vuelves. Si una llamada u otra cosa interrumpe el audio, las tareas en curso terminan igualmente."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「やること」に実行中のセッション、バックグラウンドジョブ、オンのオートメーションがあるときは、App を離れた後も無音のオーディオを再生して動かし続けます。バッテリーの消費が少し増えます。何もないときは特に何もせず、システムがいつもどおり App を一時停止し、戻ると自動的に再開します。通話などでオーディオが中断されても、実行中のタスクは最後まで続きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'할 일'에 진행 중인 세션, 백그라운드 작업, 켜진 자동화가 있으면 앱을 떠난 뒤에도 무음 오디오를 재생해 계속 실행해요. 배터리를 조금 더 사용해요. 아무것도 없으면 따로 유지하지 않고, 시스템이 평소처럼 앱을 일시정지했다가 돌아오면 자동으로 다시 이어져요. 전화 등으로 오디오가 끊겨도 진행 중인 작업은 끝까지 실행돼요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「待辦」裡有進行中的對話、背景任務或開啟的自動化時，離開 App 後播放無聲音訊讓它們繼續執行，會多耗一些電；都沒有時不做額外保持，App 照常被系統暫停，回來時自動恢復。音訊被來電等打斷時，進行中的任務仍會繼續跑完。"
+          }
+        }
+      }
+    },
     "一句话说明它做什么" : {
       "localizations" : {
         "en" : {
@@ -17118,6 +17296,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "以下是引擎日誌。拷貝或分享出去，就能看出卡在哪一步。"
+          }
+        }
+      }
+    },
+    "下面这些事需要引擎继续运行，会多耗一些电。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The items below need the engine to keep running. This uses a bit more battery."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo de abajo necesita que el motor siga funcionando. Consume un poco más de batería."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以下の作業にはエンジンの実行継続が必要です。バッテリーの消費が少し増えます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래 항목은 엔진이 계속 실행되어야 해요. 배터리를 조금 더 사용해요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下面這些事需要引擎繼續執行，會多耗一些電。"
           }
         }
       }
@@ -19978,6 +20190,40 @@
         }
       }
     },
+    "以前离开 App 后会一直播放无声音频保持运行。现在只在「待办」里有事时才这样，事情做完就让系统照常暂停 App，回来时自动恢复。开关在设置 → 后台运行。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app used to play silent audio the whole time you were away, to keep running. Now it does so only while To-Do has something in it; once that is done, the system pauses the app as usual and it picks up again when you come back. The switch is in Settings → Run in Background."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antes, al salir, la app reproducía audio silencioso todo el tiempo para seguir funcionando. Ahora solo lo hace mientras haya algo en Pendientes; cuando termina, el sistema pausa la app como siempre y se reanuda cuando vuelves. El interruptor está en Configuración → Ejecutar en segundo plano."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これまでは App を離れている間ずっと無音のオーディオを再生して動かし続けていました。今後は「やること」に何かあるときだけで、終わればシステムがいつもどおり App を一時停止し、戻ると自動的に再開します。スイッチは 設定 → バックグラウンドで実行 にあります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예전에는 앱을 떠나 있는 동안 계속 무음 오디오를 재생해 실행을 유지했어요. 이제는 '할 일'에 항목이 있을 때만 그렇게 하고, 끝나면 시스템이 평소처럼 앱을 일시정지했다가 돌아오면 자동으로 다시 이어져요. 스위치는 설정 → 백그라운드에서 실행에 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以前離開 App 後會一直播放無聲音訊保持執行。現在只在「待辦」裡有事時才這樣，事情做完就讓系統照常暫停 App，回來時自動恢復。開關在設定 → 背景執行。"
+          }
+        }
+      }
+    },
     "以后" : {
       "localizations" : {
         "en" : {
@@ -20898,6 +21144,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "對話"
+          }
+        }
+      }
+    },
+    "会话 · %lld 个子智能体" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session · %lld subagents"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesión · %lld subagentes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "セッション · サブエージェント %lld 件"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "세션 · 하위 에이전트 %lld개"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "對話 · %lld 個子代理"
           }
         }
       }
@@ -24608,6 +24888,40 @@
         }
       }
     },
+    "全部自动化" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Automations"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las automatizaciones"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのオートメーション"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 자동화"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部自動化"
+          }
+        }
+      }
+    },
     "全部设置" : {
       "localizations" : {
         "en" : {
@@ -25152,6 +25466,40 @@
         }
       }
     },
+    "关闭后台保持运行？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop Keeping the App Running?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Dejar de mantener la app en ejecución?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックグラウンドでの実行継続をオフにしますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백그라운드 실행 유지를 끌까요?"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關閉背景保持執行？"
+          }
+        }
+      }
+    },
     "关闭思考" : {
       "localizations" : {
         "en" : {
@@ -25255,6 +25603,7 @@
       }
     },
     "关闭静音音频？" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32159,6 +32508,40 @@
         }
       }
     },
+    "只算这台手机上要引擎才能进行的事。远程控制的会话在电脑上跑，不受影响。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only work that needs the engine on this phone counts. Remote Control sessions run on your computer and are not affected."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo cuenta lo que necesita el motor de este teléfono. Las sesiones de Control remoto se ejecutan en tu ordenador y no se ven afectadas."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この iPhone のエンジンが必要な作業だけが対象です。リモート操作のセッションはコンピュータ上で動くので影響を受けません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰의 엔진이 필요한 작업만 해당돼요. 원격 제어 세션은 컴퓨터에서 실행되니 영향을 받지 않아요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只算這支手機上需要引擎才能進行的事。遠端控制的對話在電腦上執行，不受影響。"
+          }
+        }
+      }
+    },
     "只粘贴密钥本身，不要带「名字=」" : {
       "localizations" : {
         "en" : {
@@ -33282,6 +33665,40 @@
         }
       }
     },
+    "后台保持运行已关闭" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keeping the app running is off"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantener la app en ejecución está desactivado"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックグラウンドでの実行継続はオフです"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백그라운드 실행 유지가 꺼져 있어요"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景保持執行已關閉"
+          }
+        }
+      }
+    },
     "后台运行" : {
       "localizations" : {
         "en" : {
@@ -33312,6 +33729,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "背景執行"
+          }
+        }
+      }
+    },
+    "后台运行的事" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Background work"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trabajo en segundo plano"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックグラウンドの作業"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백그라운드 작업"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景執行的事"
           }
         }
       }
@@ -45694,6 +46145,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "開啟之後，AI 代理和你裝的第三方外掛都能用，App 不區分誰在呼叫。裝外掛前請確認來源可信。改、刪這類寫入操作預設直接執行，不會每次問你——想讓它每次停下來問，把那一項的「寫入」改成「每次確認」。"
+          }
+        }
+      }
+    },
+    "开启的自动化" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automations On"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatizaciones activadas"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オンのオートメーション"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "켜진 자동화"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟的自動化"
           }
         }
       }
@@ -62049,6 +62534,40 @@
         }
       }
     },
+    "有后台任务时保持运行" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep Running for Background Work"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguir con trabajo en segundo plano"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックグラウンドの作業中は実行を続ける"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백그라운드 작업이 있으면 계속 실행"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有背景任務時保持執行"
+          }
+        }
+      }
+    },
     "有定时任务" : {
       "localizations" : {
         "en" : {
@@ -69698,6 +70217,40 @@
         }
       }
     },
+    "没事做时不再后台耗电" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Battery Drain When Idle"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin gasto de batería cuando no hay nada que hacer"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "やることがなければバックグラウンドで電池を使いません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "할 일이 없으면 백그라운드에서 배터리를 쓰지 않아요"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒事做時不再在背景耗電"
+          }
+        }
+      }
+    },
     "没开的能力，智能体和你装的插件都用不了，也没法替你打开。系统的授权框只会在你点「开启」时出现。" : {
       "localizations" : {
         "en" : {
@@ -75623,7 +76176,42 @@
         }
       }
     },
+    "离开 App 后会保持运行" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keeps running after you leave"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sigue funcionando cuando sales"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App を離れても動き続けます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 떠나도 계속 실행돼요"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "離開 App 後會保持執行"
+          }
+        }
+      }
+    },
     "离开 App 后播放无声音频，任务、自动化和开发服务器都不停。会多耗一些电。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -75658,6 +76246,7 @@
       }
     },
     "离开 App 后播放无声音频，任务、自动化和开发服务器都不停，会多耗一些电。音频被来电等打断时，进行中的任务仍会继续跑完。" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -75721,6 +76310,108 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "離開 App 後，%@，之後引擎可能被系統暫停。"
+          }
+        }
+      }
+    },
+    "离开 App 后，下面这些事可能被系统暂停。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After you leave the app, the system may suspend the items below."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al salir de la app, el sistema podría suspender lo de abajo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App を離れると、以下の作業はシステムによって一時停止されることがあります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 떠나면 아래 항목이 시스템에 의해 일시정지될 수 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "離開 App 後，下面這些事可能被系統暫停。"
+          }
+        }
+      }
+    },
+    "离开 App 后，系统会照常暂停它，回来时自动恢复。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After you leave the app, the system pauses it as usual, and it picks up again when you come back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al salir de la app, el sistema la pausa como siempre y se reanuda cuando vuelves."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App を離れると、システムがいつもどおり一時停止し、戻ると自動的に再開します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 떠나면 시스템이 평소처럼 일시정지하고, 돌아오면 자동으로 다시 이어져요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "離開 App 後，系統會照常暫停它，回來時自動恢復。"
+          }
+        }
+      }
+    },
+    "离开 App 后，进行中的任务最多再跑约 30 秒，之后引擎可能被系统暂停，自动化和开发服务器会中断。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When you leave the app, running tasks get about 30 more seconds at most; after that the system may suspend the engine, interrupting automations and dev servers."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al salir de la app, las tareas en curso seguirán como máximo unos 30 segundos más; después, el sistema podría suspender el motor e interrumpir las automatizaciones y los servidores de desarrollo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App を離れると、実行中のタスクは最大で約30秒間続行します。その後、システムによってエンジンが一時停止され、オートメーションと開発サーバが中断されることがあります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 떠나면 실행 중인 작업은 최대 약 30초 더 실행돼요. 이후 시스템이 엔진을 일시정지할 수 있고, 자동화와 개발 서버가 중단돼요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "離開 App 後，進行中的任務最多再跑約 30 秒，之後引擎可能被系統暫停，自動化和開發伺服器會中斷。"
           }
         }
       }
@@ -92719,6 +93410,74 @@
         }
       }
     },
+    "进行中的会话" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Running Sessions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesiones en curso"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実行中のセッション"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "진행 중인 세션"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "進行中的對話"
+          }
+        }
+      }
+    },
+    "进行中的会话、后台任务和开启的自动化都列在「待办」里，一眼就能看出离开 App 后它还会不会接着跑。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Running sessions, background jobs and automations that are on are all listed in To-Do, so you can see at a glance whether the app keeps going after you leave."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las sesiones en curso, las tareas en segundo plano y las automatizaciones activadas aparecen en Pendientes, así ves de un vistazo si la app sigue funcionando al salir."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実行中のセッション、バックグラウンドジョブ、オンのオートメーションは「やること」にまとめて表示され、App を離れた後も動き続けるかがひと目でわかります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "진행 중인 세션, 백그라운드 작업, 켜진 자동화가 모두 '할 일'에 표시돼서 앱을 떠난 뒤에도 계속 실행되는지 한눈에 알 수 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "進行中的對話、背景任務和開啟的自動化都列在「待辦」裡，一眼就能看出離開 App 後它還會不會接著跑。"
+          }
+        }
+      }
+    },
     "进行中的回合" : {
       "localizations" : {
         "en" : {
@@ -97006,6 +97765,7 @@
       }
     },
     "静音音频" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -106006,6 +106766,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "新分頁"
+          }
+        }
+      }
+    },
+    "新的「待办」页" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New To-Do Tab"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva pestaña Pendientes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい「やること」タブ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새로운 '할 일' 탭"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新的「待辦」頁"
           }
         }
       }

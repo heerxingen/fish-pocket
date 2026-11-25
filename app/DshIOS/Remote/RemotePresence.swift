@@ -4,9 +4,9 @@ import Observation
 import UIKit
 
 /// The sessions on a computer that the phone answers for, outside their conversations. The
-/// lock screen and the widgets read them straight from `RemoteStore`; this keeps the rest in
-/// step, as it is for the phone's own sessions: the app stays alive off screen while one of
-/// them works, and a request in a session the user is not looking at is said once.
+/// lock screen and the widgets read them straight from `RemoteStore`; this says a request in a
+/// session the user is not looking at once. They do not keep the app alive off screen: the
+/// computer goes on without the phone, and the app catches up when it is opened again.
 @MainActor
 final class RemotePresence {
     static let shared = RemotePresence()
@@ -27,7 +27,6 @@ final class RemotePresence {
         let (attention, requests) = withObservationTracking { (app.remote.attention, app.remote.requests) } onChange: { [weak self] in
             Task { @MainActor in self?.observe() }
         }
-        app.remoteWorkChanged()
         announce(attention, requests: requests, in: app)
     }
 

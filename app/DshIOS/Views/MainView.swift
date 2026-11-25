@@ -10,9 +10,9 @@ import SwiftUI
 /// narrow a drawer that slides in from the left.
 struct MainView: View {
     /// The phone's tabs.
-    enum HomeTab: Hashable { case sessions, bot, apps, explore }
+    enum HomeTab: Hashable { case sessions, bot, apps, todo, explore }
 
-    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, watch, capabilities, connectors, phoneControl, remote, fishPocket, miniApps; var id: String { rawValue } }
+    enum Sheet: String, Identifiable { case settings, plugins, store, schedules, signIn, cordis, share, watch, capabilities, connectors, phoneControl, remote, fishPocket, miniApps, todo; var id: String { rawValue } }
 
     @Environment(AppModel.self) private var app
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -301,6 +301,12 @@ struct MainView: View {
         }
         // Which store this copy came from: only an App Store install is asked for a rating.
         .task { await AppDistribution.refresh() }
+        // The sidebar's 待办 row; on the tab bar the page is a tab.
+        .onChange(of: app.todoRequest) { _, token in
+            guard token != nil, scenePhase != .background else { return }
+            app.todoRequest = nil
+            if usesTabs { sheet = nil; tab = .todo } else { sheet = .todo }
+        }
         // The sidebar's 我的应用 row; on the tab bar the page is a tab.
         .onChange(of: app.miniAppsRequest) { _, token in
             guard token != nil, scenePhase != .background else { return }
@@ -471,7 +477,7 @@ struct MainView: View {
     }
 
     #if DEBUG
-    /// Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|question|timeline|settings|plugins|store|schedules|signin|support|share|watch|connectors|whatsnew|capabilities|phonecontrol|remote|start|fishpocket|topup|miniapps`.
+    /// Screenshots and UI checks: `simctl launch … -dshOpen drawer|workbench|approval|question|timeline|settings|plugins|store|schedules|signin|support|share|watch|connectors|whatsnew|capabilities|phonecontrol|remote|start|fishpocket|topup|miniapps|todo`.
     /// The conversation takes `workbench|filesearch|approval|question|timeline` itself; `filesearch` is the workbench's
     /// file search, with `-dshQuery <text>` to start it on a search.
     private func openForChecks() {
@@ -494,6 +500,7 @@ struct MainView: View {
         case "fishpocket": sheet = .fishPocket
         case "topup": app.fishPocket.quotaPrompt = true
         case "miniapps": if usesTabs { tab = .apps } else { sheet = .miniApps }
+        case "todo": if usesTabs { tab = .todo } else { sheet = .todo }
         default: break
         }
     }
@@ -519,6 +526,7 @@ struct MainView: View {
         case .remote: SheetStack { RemoteControlPage() }.environment(\.systemLists, true)
         case .fishPocket: SheetStack { FishPocketPage() }
         case .miniApps: SheetStack { MiniAppsPage() }
+        case .todo: SheetStack { TodoPage(open: openWork) }
         }
     }
 
@@ -794,6 +802,15 @@ struct MainView: View {
         setDrawer(false)
     }
 
+    /// A row of the 待办 tab: the conversation, or the Bot's chat or the group it belongs to.
+    private func openWork(_ place: RunningWork.Place) {
+        switch place {
+        case .session(let id): open(session: id)
+        case .bot(let id): sheet = nil; openBots([.bot(id)])
+        case .room(let id): sheet = nil; openBots([.room(id)])
+        }
+    }
+
     /// 插件, from the sidebar or the new conversation page.
     private func openPlugins() {
         setDrawer(false)
@@ -854,6 +871,12 @@ struct MainView: View {
             } label: {
                 tabLabel(Text(MiniAppsPage.tabTitle), "square.on.circle")
             }
+            // 待办: what keeps the app running off screen, and why (BackgroundWork.swift).
+            Tab(value: HomeTab.todo) {
+                NavigationStack { TodoPage(asTab: true, open: openWork) }
+            } label: {
+                tabLabel(Text(TodoPage.title), "list.bullet.clipboard")
+            }
             Tab(value: HomeTab.explore) {
                 ExploreTabView(path: $explorePath)
             } label: {
@@ -885,6 +908,9 @@ struct MainView: View {
             NavigationStack { MiniAppsPage(asTab: true) }
                 .tabItem { tabLabel(Text(MiniAppsPage.tabTitle), "square.on.circle") }
                 .tag(HomeTab.apps)
+            NavigationStack { TodoPage(asTab: true, open: openWork) }
+                .tabItem { tabLabel(Text(TodoPage.title), "list.bullet.clipboard") }
+                .tag(HomeTab.todo)
             ExploreTabView(path: $explorePath)
                 .tabItem { tabLabel(Text("探索"), "square.grid.2x2") }
                 .tag(HomeTab.explore)

@@ -115,6 +115,7 @@ struct DrawerView: View {
                 BotDrawerEntry()
                     .padding(.top, 4)
                     .plainRow()
+                todoRow
                 pluginsRow
                 miniAppsRow
                 phoneControlRow
@@ -410,6 +411,25 @@ struct DrawerView: View {
                 Text("本机能力").font(.subheadline).foregroundStyle(Palette.ink)
                 Spacer()
                 Text("日历、健康、照片等").font(.footnote).foregroundStyle(Palette.secondary)
+            }
+            .padding(.horizontal, 12)
+            .frame(minHeight: 46)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.bottom, 2)
+        .plainRow()
+    }
+
+    /// 待办 (the tab bar's tab): what keeps the app running off screen; it says how much is under way.
+    private var todoRow: some View {
+        let count = app.runningWork.count + app.liveJobs.count + app.armedSchedules.count
+        return Button { Haptics.tap(); app.todoRequest = UUID() } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "list.bullet.clipboard").font(.callout).foregroundStyle(Palette.ink).frame(width: 22)
+                Text(TodoPage.title).font(.subheadline).foregroundStyle(Palette.ink)
+                Spacer()
+                Text(count == 0 ? String(localized: "后台运行的事") : String(localized: "\(count) 项")).font(.footnote).foregroundStyle(Palette.secondary)
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 46)

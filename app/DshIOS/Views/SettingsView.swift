@@ -2,7 +2,7 @@ import SafariServices
 import SwiftUI
 import WatchConnectivity
 
-/// Settings: only what people come here for (账号, 模型, 访问模式, 插件, 自动化, 后台运行: 静音音频,
+/// Settings: only what people come here for (账号, 模型, 访问模式, 插件, 自动化, 后台运行: 有后台任务时保持运行,
 /// 任务续跑, 小组件), then the rarely touched 外观, App 图标 and 语言. Developer pages sit behind 高级, versions and
 /// engine status behind 关于. 本机能力 and 远程控制 are on the 探索 tab (in the sidebar on an iPad before iOS 18), not here.
 /// 分享 Fish Pocket and Apple Watch open the list (pushed from the 探索 tab they are on that page instead); the star, rating, website, source, feedback and author links,
@@ -110,7 +110,7 @@ struct SettingsView: View {
                 Toggle(isOn: Binding(get: { keepAlive }, set: { on in
                     if on { keepAlive = true } else { confirmingKeepAliveOff = true }
                 })) {
-                    Label("静音音频", systemImage: "speaker.slash")
+                    Label("有后台任务时保持运行", systemImage: "bolt.horizontal.circle")
                 }
                 // The system's continued-processing task exists from iOS 26 only.
                 if #available(iOS 26.0, *) {
@@ -123,7 +123,7 @@ struct SettingsView: View {
             }
             .onChange(of: keepAlive) { BackgroundKeeper.shared.settingsChanged() }
             .onChange(of: continuedProcessing) { BackgroundKeeper.shared.settingsChanged() }
-            .alert("关闭静音音频？", isPresented: $confirmingKeepAliveOff) {
+            .alert("关闭后台保持运行？", isPresented: $confirmingKeepAliveOff) {
                 Button("取消", role: .cancel) {}
                 Button("关闭", role: .destructive) { keepAlive = false }
             } message: {
@@ -269,7 +269,7 @@ struct SettingsView: View {
         return continuedProcessing
     }
 
-    /// What happens to in-flight turns without silent audio.
+    /// What happens to in-flight turns when nothing keeps the app running.
     private var turnsOffScreen: String {
         continuesTurns
             ? String(localized: "进行中的任务会继续跑完（系统显示进度，可随时停止）")
@@ -279,8 +279,8 @@ struct SettingsView: View {
     private var backgroundFooter: String {
         guard keepAlive else { return String(localized: "离开 App 后，\(turnsOffScreen)，之后引擎可能被系统暂停。") }
         return continuesTurns
-            ? String(localized: "离开 App 后播放无声音频，任务、自动化和开发服务器都不停，会多耗一些电。音频被来电等打断时，进行中的任务仍会继续跑完。")
-            : String(localized: "离开 App 后播放无声音频，任务、自动化和开发服务器都不停。会多耗一些电。")
+            ? String(localized: "「待办」里有进行中的会话、后台任务或开启的自动化时，离开 App 后播放无声音频让它们继续运行，会多耗一些电；都没有时不做额外保活，App 照常被系统暂停，回来时自动恢复。音频被来电等打断时，进行中的任务仍会继续跑完。")
+            : String(localized: "「待办」里有进行中的会话、后台任务或开启的自动化时，离开 App 后播放无声音频让它们继续运行，会多耗一些电；都没有时不做额外保活，App 照常被系统暂停，回来时自动恢复。")
     }
 
     /// A permission preset in the words the app uses everywhere (`{value, name}`).

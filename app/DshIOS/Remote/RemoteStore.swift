@@ -115,7 +115,7 @@ final class RemoteStore {
     func listed(archived: Bool = false) -> [RemoteSession] { archived ? archivedSessions : active }
 
     /// Followed sessions that wait on the user or are at work, the waiting ones first: what the
-    /// lock screen, the widgets and the background keeper report beside the phone's own sessions.
+    /// lock screen and the widgets report beside the phone's own sessions.
     /// It holds what was last heard: a lost connection reads as still at work, not as finished.
     var attention: [RemoteSession] {
         active.filter(\.needsAttention).sorted { ($0.waiting ? 0 : 1) < ($1.waiting ? 0 : 1) }

@@ -47,6 +47,14 @@ enum WhatsNew {
     /// Newest first. Until the app reaches an entry's version (and build, when it names one),
     /// the entry is not shown. Entries of one version are shown together, newest first.
     static let releases: [Release] = [
+        Release(version: "1.2.1", build: 118, features: [
+            Feature(symbol: "list.bullet.clipboard",
+                    title: "新的「待办」页",
+                    detail: "进行中的会话、后台任务和开启的自动化都列在「待办」里，一眼就能看出离开 App 后它还会不会接着跑。"),
+            Feature(symbol: "leaf",
+                    title: "没事做时不再后台耗电",
+                    detail: "以前离开 App 后会一直播放无声音频保持运行。现在只在「待办」里有事时才这样，事情做完就让系统照常暂停 App，回来时自动恢复。开关在设置 → 后台运行。"),
+        ]),
         Release(version: "1.2.1", build: 114, features: [
             Feature(symbol: "tray.and.arrow.down",
                     title: "把 DeepSeek 的聊天记录搬过来",

@@ -10,9 +10,12 @@ struct JobRow: Identifiable, Hashable {
     let startedAt: Date
     let finishedAt: Date?
     let outputTotal: Double
+    /// The session that started it; none for an unowned job.
+    let owner: String?
 
     init(_ json: JSON) {
         id = json["id"].string ?? ""
+        owner = json["owner"].string
         kind = json["kind"].string ?? ""
         label = json["label"].string ?? id
         status = json["status"].string ?? "running"
@@ -177,7 +180,7 @@ struct JobsSheet: View {
     }
 }
 
-private extension View {
+extension View {
     /// The one confirmation before a job stops, from the list or its output page.
     func stopJobDialog(_ job: Binding<JobRow?>, stop: @escaping (JobRow) -> Void) -> some View {
         confirmationDialog("停止这个任务？", isPresented: Binding(get: { job.wrappedValue != nil }, set: { if !$0 { job.wrappedValue = nil } }), titleVisibility: .visible, presenting: job.wrappedValue) { row in
@@ -188,7 +191,7 @@ private extension View {
     }
 }
 
-private struct JobRowLabel: View {
+struct JobRowLabel: View {
     let job: JobRow
     let now: Date
 

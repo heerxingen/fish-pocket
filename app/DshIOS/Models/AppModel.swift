@@ -171,8 +171,10 @@ final class AppModel {
     var connectorsRequest: UUID?
     /// Open 操控手机, the iCTRL switch (the root view consumes it).
     var phoneControlRequest: UUID?
-    /// The drawer's 我的应用 row: the shell opens the page.
+    /// The drawer's 小工具 row, or a way to it: the shell opens the page.
     var miniAppsRequest: UUID?
+    /// The drawer's 待办 row: the shell opens the page.
+    var todoRequest: UUID?
     /// A credential step to open (set through `requestCredentials`; the root view consumes it).
     var credentialRequest: (step: CredentialStep, token: UUID)?
     /// The session in the main view, kept by the root view (unread completions skip it).
@@ -185,6 +187,8 @@ final class AppModel {
     private(set) var scheduleCatalog: [JSON] = []
     /// How many tasks the automation page lists, ended ones included; nil before the first read.
     private(set) var scheduleCount: Int?
+    /// Every session's running or stopping background jobs (`followJobs`).
+    private(set) var liveJobs: [JobRow] = []
     /// `$events` is up (a `ready` arrived and the stream has not ended).
     private(set) var connected = false
     /// Bumped on every `ready`: a new connection generation, after which every
@@ -199,6 +203,7 @@ final class AppModel {
     @ObservationIgnored private var eventsTask: Task<Void, Never>?
     @ObservationIgnored private var controlTask: Task<Void, Never>?
     @ObservationIgnored private var scheduleTask: Task<Void, Never>?
+    @ObservationIgnored private var jobsTask: Task<Void, Never>?
     @ObservationIgnored private var eventsClientId: String?
     /// `api-session/status` from `$events`: the live running flag, which wins over
     /// `session/list` (that one can read idle while a tool call runs).
@@ -227,6 +232,7 @@ final class AppModel {
             followControl()
             followRemoteEvents()
             followScheduleCatalog()
+            followJobs()
             account.follow()
             Task { await fishPocket.start() }
             botTeam.start()
@@ -438,6 +444,7 @@ final class AppModel {
                         seen = revision
                         scheduleCatalog = value.array
                         scheduleCount = value.array.count
+                        reportRunning()
                     } else {
                         try? await Task.sleep(for: .seconds(5))
                     }
@@ -447,8 +454,37 @@ final class AppModel {
         }
     }
 
-    /// What keeps the app alive off screen: the engine's running sessions, and the sessions on
-    /// a computer that the phone answers for while they work or wait (to hear how they end).
+    /// Every session's live background jobs (`/api/ios-jobs`, engine/plugins/ios-jobs): the
+    /// engine answers when the set changes, so this loop hears a dev server start or stop
+    /// even in a session nobody has open.
+    private func followJobs() {
+        jobsTask?.cancel()
+        jobsTask = Task {
+            var revision: Int?
+            while !Task.isCancelled {
+                var components = URLComponents(url: client.origin.appendingPathComponent("api/ios-jobs"), resolvingAgainstBaseURL: false)!
+                if let revision { components.queryItems = [URLQueryItem(name: "after", value: String(revision))] }
+                var request = client.request(components.url!)
+                request.timeoutInterval = 60
+                do {
+                    let (data, _) = try await client.session.data(for: request)
+                    let value = try JSONDecoder().decode(JSON.self, from: data)
+                    revision = value["revision"].int
+                    let jobs = value["jobs"].array.map(JobRow.init)
+                    if jobs != liveJobs {
+                        liveJobs = jobs
+                        reportRunning()
+                    }
+                } catch {
+                    if Task.isCancelled { return }
+                    revision = nil
+                    try? await Task.sleep(for: .seconds(5))
+                }
+            }
+        }
+    }
+
+    /// The work the 待办 tab lists changed: the background keeper hears it (BackgroundWork.swift).
     private func reportRunning() {
         let running = sessions.values.filter(\.running)
         // 我的应用: an app the agent changed is published once its turn is over.
@@ -457,12 +493,8 @@ final class AppModel {
             MiniAppPublisher.agentBusy = busy
             if !busy { MiniAppStore.shared.refresh() }
         }
-        BackgroundKeeper.shared.update(running: running.map { $0.isSubagent ? String(localized: "子智能体") : title(of: $0.id) }
-            + remote.attention.map(\.displayTitle))
+        BackgroundKeeper.shared.update(running: runningWork.map(\.title), keepAlive: keepsAppAlive)
     }
-
-    /// The followed sessions on a computer started or stopped working (`RemotePresence`).
-    func remoteWorkChanged() { reportRunning() }
 
     /// Rows without cached projections carry no title; read them once (no agent is resumed).
     private func loadMissingTitles() async {
