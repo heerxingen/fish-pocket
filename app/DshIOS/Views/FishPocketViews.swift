@@ -6,7 +6,7 @@ struct FishPocketPrivacyNote: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Image(systemName: "lock.fill").font(.caption)
-            Text("登录信息只发给 Fish Pocket 服务器，用来识别账号和记录额度。用额度对话时，消息经 Fish Pocket 服务器转发给 DeepSeek 模型的服务商，服务器只记录用量，不保存对话内容。")
+            Text("登录信息只发给 Fish Pocket 服务器，用来识别账号和记录额度。用额度对话时，消息经 Fish Pocket 服务器转发给模型的服务商，服务器只记录用量，不保存对话内容。")
                 .font(.footnote)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -42,11 +42,11 @@ struct FishPocketPage: View {
                 if account.signedIn {
                     FishPocketBalance(balance: account.balance, depleted: topUp, sells: account.canPurchase)
                     if account.canPurchase { packs } else { FishPocketNoPurchaseNote() }
-                    FishPocketPerks(rate: account.tokensPerCredit)
+                    FishPocketPerks(rates: account.rates)
                     if !topUp { accountCard }
                 } else {
                     FishPocketIntro()
-                    FishPocketPerks(rate: account.tokensPerCredit)
+                    FishPocketPerks(rates: account.rates)
                     packs
                     FishPocketPrivacyNote().padding(.horizontal, 4)
                 }
@@ -477,34 +477,78 @@ struct FishPocketBalance: View {
     }
 }
 
-/// What credits buy, and how they are spent.
+/// What credits buy, and how they are spent. The models and their rates come
+/// from the server, so the card names no vendor and fits any number of them.
 struct FishPocketPerks: View {
-    /// What one credit buys, once the server has said.
-    var rate: (input: Int, output: Int)?
+    /// What one credit buys of each served model, once the server has said.
+    var rates: [FishPocketRate]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            perk("brain", Text(verbatim: "DeepSeek-V4.1-Flash"), Text("支持深度思考和工具调用。"))
-            perk("gauge.with.dots.needle.33percent", Text("用多少扣多少"), rate.map {
-                Text("1 积分约等于 \($0.input) 个输入 Token 或 \($0.output) 个输出 Token，不对话不扣。")
-            } ?? Text("按实际用量扣积分，不对话不扣。"))
-            perk("infinity", Text("购买的积分不会过期"), Text("没有有效期，什么时候用完都可以。"))
+            models
+            usage
+            perk("infinity", Text("购买的积分不会过期")) {
+                Text("没有有效期，什么时候用完都可以。")
+            }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardSurface()
     }
 
-    private func perk(_ icon: String, _ title: Text, _ detail: Text) -> some View {
-        HStack(spacing: 14) {
+    @ViewBuilder private var models: some View {
+        if rates.count > 1 {
+            perk("brain", Text("\(rates.count) 个模型可选")) {
+                Text("都支持工具调用，对话时随时切换。")
+            }
+        } else {
+            // Before the server has said (or when it could not be reached), no model is named.
+            perk("brain", rates.first.map { Text(verbatim: $0.name) } ?? Text("AI 模型")) {
+                Text("支持工具调用。")
+            }
+        }
+    }
+
+    @ViewBuilder private var usage: some View {
+        if rates.count > 1 {
+            perk("gauge.with.dots.needle.33percent", Text("用多少扣多少")) {
+                Text("按实际用量扣积分，不对话不扣。")
+                Text("1 积分约等于（输入 / 输出 Token）：")
+                    .padding(.top, 6)
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 2) {
+                    ForEach(rates, id: \.name) { rate in
+                        GridRow {
+                            Text(verbatim: rate.name)
+                            Text(verbatim: "\(rate.input.formatted()) / \(rate.output.formatted())")
+                                .monospacedDigit()
+                                .gridColumnAlignment(.trailing)
+                        }
+                    }
+                }
+                .padding(.top, 4)
+            }
+        } else {
+            perk("gauge.with.dots.needle.33percent", Text("用多少扣多少")) {
+                if let rate = rates.first {
+                    Text("1 积分约等于 \(rate.input) 个输入 Token 或 \(rate.output) 个输出 Token，不对话不扣。")
+                } else {
+                    Text("按实际用量扣积分，不对话不扣。")
+                }
+            }
+        }
+    }
+
+    private func perk(_ icon: String, _ title: Text, @ViewBuilder detail: () -> some View) -> some View {
+        HStack(alignment: .top, spacing: 14) {
             Image(systemName: icon)
                 .font(.system(size: 20, weight: .medium))
                 .foregroundStyle(Palette.ink)
                 .frame(width: 30)
+                .padding(.top, 2)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 title.font(.subheadline.weight(.semibold)).foregroundStyle(Palette.ink)
-                detail
+                VStack(alignment: .leading, spacing: 2) { detail() }
                     .font(.footnote)
                     .foregroundStyle(Palette.secondary)
                     .fixedSize(horizontal: false, vertical: true)

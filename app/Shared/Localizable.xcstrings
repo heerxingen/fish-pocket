@@ -2942,6 +2942,40 @@
         }
       }
     },
+    "%lld 个模型可选" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Models to Choose From"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld modelos para elegir"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 種類のモデルから選べます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모델 %lld개 중에서 선택"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 個模型可選"
+          }
+        }
+      }
+    },
     "%lld 个等你" : {
       "localizations" : {
         "en" : {
@@ -79451,6 +79485,40 @@
         }
       }
     },
+    "登录信息只发给 Fish Pocket 服务器，用来识别账号和记录额度。用额度对话时，消息经 Fish Pocket 服务器转发给模型的服务商，服务器只记录用量，不保存对话内容。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign-in details go only to the Fish Pocket servers, to identify your account and keep track of credits. When you chat with credits, messages pass through the Fish Pocket servers to the provider serving the model; the servers record usage only and do not store conversations."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los datos de inicio de sesión solo se envían a los servidores de Fish Pocket, para identificar tu cuenta y llevar la cuenta de los créditos. Cuando chateas con créditos, los mensajes pasan por los servidores de Fish Pocket hasta el proveedor que sirve el modelo; los servidores solo registran el uso y no guardan las conversaciones."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サインイン情報は Fish Pocket のサーバーにのみ送信され、アカウントの識別とクレジットの記録に使われます。クレジットで会話するとき、メッセージは Fish Pocket のサーバーを経由してモデルの提供元に転送されます。サーバーは使用量だけを記録し、会話の内容は保存しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그인 정보는 Fish Pocket 서버로만 전송되며, 계정 식별과 크레딧 기록에 사용돼요. 크레딧으로 대화할 때 메시지는 Fish Pocket 서버를 거쳐 모델 제공업체로 전달돼요. 서버는 사용량만 기록하고 대화 내용은 저장하지 않아요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登入資訊只傳給 Fish Pocket 伺服器，用來識別帳號和記錄額度。用額度對話時，訊息經 Fish Pocket 伺服器轉送給模型的服務商，伺服器只記錄用量，不儲存對話內容。"
+          }
+        }
+      }
+    },
     "登录信息已失效，请重新登录" : {
       "localizations" : {
         "en" : {
@@ -100571,6 +100639,40 @@
         }
       }
     },
+    "都支持工具调用，对话时随时切换。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All support tool calls. Switch anytime while chatting."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos admiten uso de herramientas. Cámbialos cuando quieras durante el chat."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "どれもツール呼び出しに対応。会話中いつでも切り替えられます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모두 도구 호출을 지원하고, 대화 중 언제든 바꿀 수 있어요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "都支援工具呼叫，對話時隨時切換。"
+          }
+        }
+      }
+    },
     "配置" : {
       "localizations" : {
         "en" : {
@@ -113322,6 +113424,40 @@
         }
       }
     },
+    "1 积分约等于（输入 / 输出 Token）：" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 credit ≈ (input / output tokens):"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 crédito ≈ (tokens de entrada / salida):"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 クレジット ≈（入力 / 出力トークン）："
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1크레딧 ≈ (입력 / 출력 토큰):"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 積分約等於（輸入 / 輸出 Token）："
+          }
+        }
+      }
+    },
     "在 App 内购买额度，按用量扣费。" : {
       "localizations" : {
         "en" : {
@@ -114032,6 +114168,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "依實際用量扣積分，不對話不扣。"
+          }
+        }
+      }
+    },
+    "支持工具调用。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tool calls supported."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Admite uso de herramientas."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ツール呼び出しに対応。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도구 호출을 지원해요."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支援工具呼叫。"
           }
         }
       }
@@ -118449,6 +118619,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "AI 傳來的語音訊息也用這裡的聲音。"
+          }
+        }
+      }
+    },
+    "AI 模型" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Models"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modelos de IA"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI モデル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 모델"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 模型"
           }
         }
       }

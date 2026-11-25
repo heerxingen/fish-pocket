@@ -98,7 +98,7 @@ struct ConversationView: View {
         }
         .trackKeyboard($keyboardUp)
         // A key saved or an account signed in changes what the model picker can offer.
-        .task(id: app.revision("llm/adapters-updated", "settings/document-updated", "credentials/reference-updated", "credentials/record-updated")) {
+        .task(id: app.revision("llm/adapters-updated", "llm/models-updated", "settings/document-updated", "credentials/reference-updated", "credentials/record-updated")) {
             if let model { await context.load(model) }
         }
         #if DEBUG

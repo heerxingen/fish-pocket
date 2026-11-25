@@ -53,7 +53,7 @@ struct ModelPicker: View {
         .accessibilityLabel(context.effortName(model).map { Text("模型：\(context.modelName(model))，推理档位 \($0)") } ?? Text("模型：\(context.modelName(model))"))
         .sheet(isPresented: $searching) { ModelSearchSheet(model: model, context: context) }
         // MS-03: a provider's key or adapter changed; the catalog the menu shows follows.
-        .onChange(of: app.revision("llm/adapters-updated", "settings/document-updated", "credentials/record-updated", "credentials/reference-updated")) {
+        .onChange(of: app.revision("llm/adapters-updated", "llm/models-updated", "settings/document-updated", "credentials/record-updated", "credentials/reference-updated")) {
             Task { await context.loadCatalog(model) }
         }
     }

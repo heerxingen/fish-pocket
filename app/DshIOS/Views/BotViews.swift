@@ -349,7 +349,7 @@ struct BotHomeView: View {
         .task(id: query) { await searchMessages() }
         // A key or a provider set in 设置 changes the models a Bot can run on; nothing on the
         // feed says so, so the list is read again when DSH says they changed.
-        .task(id: app.revision("llm/adapters-updated", "credentials/reference-updated", "credentials/record-updated")) {
+        .task(id: app.revision("llm/adapters-updated", "llm/models-updated", "credentials/reference-updated", "credentials/record-updated")) {
             guard team.status == .ready else { return }
             _ = try? await team.call("models")
             await team.refreshState()

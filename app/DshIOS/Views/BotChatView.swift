@@ -289,7 +289,7 @@ private struct BotModelPicker: View {
             }
         }
         // Signing in or adding a key anywhere brings the models here.
-        .task(id: "\(app.revision("llm/adapters-updated", "credentials/reference-updated", "credentials/record-updated"))-\(app.account.signedIn)-\(app.fishPocket.signedIn)") {
+        .task(id: "\(app.revision("llm/adapters-updated", "llm/models-updated", "credentials/reference-updated", "credentials/record-updated"))-\(app.account.signedIn)-\(app.fishPocket.signedIn)") {
             if models.isEmpty { await app.botTeam.refreshState() }
         }
     }

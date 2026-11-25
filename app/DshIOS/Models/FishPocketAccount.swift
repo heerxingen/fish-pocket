@@ -13,6 +13,13 @@ struct FishPocketPack: Identifiable {
     var id: String { product.id }
 }
 
+/// What one credit buys of one model: tokens of input, and of output.
+struct FishPocketRate {
+    let name: String
+    let input: Int
+    let output: Int
+}
+
 /// The Fish Pocket account: sign-in (Apple or a phone code), the credit balance,
 /// credit packs bought through In-App Purchase, and the runtime key the
 /// engine's `fish-pocket` model route spends credits with.
@@ -64,8 +71,8 @@ final class FishPocketAccount {
     private(set) var sandboxPurchases = false
     private(set) var packs: [FishPocketPack] = []
     private(set) var packsFailed = false
-    /// What one credit buys, as the server states it with the packs: tokens of input, and of output.
-    private(set) var tokensPerCredit: (input: Int, output: Int)?
+    /// What one credit buys of each model the route serves, as the server states it with the packs.
+    private(set) var rates: [FishPocketRate] = []
     /// A pack purchase in progress.
     private(set) var purchasing: String?
     /// The packs, about buying more: opened from a conversation's out-of-balance card.
@@ -340,10 +347,11 @@ final class FishPocketAccount {
         guard let http else { return }
         do {
             let reply = try await http.send("GET", "v1/products")
-            // The first rate is the model this route offers.
-            if let rate = reply["rates"].array.first, let input = rate["inputTokensPerCredit"].int,
-               let output = rate["outputTokensPerCredit"].int, input > 0, output > 0 {
-                tokensPerCredit = (input, output)
+            // One rate per model the route serves, in the order the model picker lists them.
+            rates = reply["rates"].array.compactMap { rate in
+                guard let model = rate["model"].string, let input = rate["inputTokensPerCredit"].int,
+                      let output = rate["outputTokensPerCredit"].int, input > 0, output > 0 else { return nil }
+                return FishPocketRate(name: rate["name"].string ?? model, input: input, output: output)
             }
             let offers = reply["products"].array.compactMap { item -> (String, Int)? in
                 guard let id = item["appleProductId"].string, let credits = item["credits"].int else { return nil }

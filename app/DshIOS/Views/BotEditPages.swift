@@ -113,7 +113,7 @@ struct BotModelPage: View {
         .navigationTitle("模型")
         .navigationBarTitleDisplayMode(.inline)
         // A key added in 设置 changes what the list can offer.
-        .task(id: app.revision("llm/adapters-updated", "credentials/reference-updated", "credentials/record-updated")) {
+        .task(id: app.revision("llm/adapters-updated", "llm/models-updated", "credentials/reference-updated", "credentials/record-updated")) {
             _ = try? await team.call("models")
             await team.refreshState()
         }
