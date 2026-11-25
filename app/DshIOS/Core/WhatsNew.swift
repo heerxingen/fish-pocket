@@ -44,6 +44,16 @@ enum WhatsNew {
         ]
     }
 
+    /// Invites live on the Fish Pocket account, so only a build that has the account says so.
+    private static var invites: [Feature] {
+        guard FishPocketAPI.available else { return [] }
+        return [
+            Feature(symbol: "gift",
+                    title: "邀请好友，各得 1,000 积分",
+                    detail: "在 Fish Pocket 账号里点「邀请好友」，把邀请码分享出去。好友注册后填写你的邀请码，你们立刻各得 1,000 积分。老用户也可以填一次好友的邀请码。"),
+        ]
+    }
+
     /// Newest first. Until the app reaches an entry's version (and build, when it names one),
     /// the entry is not shown. Entries of one version are shown together, newest first.
     static let releases: [Release] = [
@@ -54,7 +64,7 @@ enum WhatsNew {
             Feature(symbol: "pencil.tip.crop.circle",
                     title: "圈哪改哪",
                     detail: "点开对话里的图片，用底部的「标注」圈出要改的地方，再说「把这里换成…」，智能体会照着你圈的位置改。"),
-        ]),
+        ] + invites),
         Release(version: "1.2.1", build: 114, features: [
             Feature(symbol: "tray.and.arrow.down",
                     title: "把 DeepSeek 的聊天记录搬过来",
