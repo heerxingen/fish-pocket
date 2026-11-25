@@ -141,6 +141,8 @@ targets:
       - target: DshLiveActivity
       # 系统分享面板里的 Fish Pocket：别的 App 分享的内容进新对话或某个 Bot 的输入框。
       - target: DshShare
+      # 通话里的「共享屏幕」：系统的屏幕直播扩展，把当前屏幕交给通话。
+      - target: DshScreenShare
       # The watch app rides inside the iPhone app and is installed with it.
       - target: DshWatch
     postBuildScripts:
@@ -390,6 +392,40 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wsw.dsh-ios.Share
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  # The screen broadcast behind 共享屏幕 on a voice call (ReplayKit): it keeps the screen as it is
+  # now, scaled down, in the App Group, and the app sends it with what the user says
+  # (Shared/ScreenShareChannel.swift, DshIOS/Call/CallScreenShare.swift). No sound, no network.
+  DshScreenShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ScreenShareExtension
+      - path: Shared/ScreenShareChannel.swift
+      # Its strings live in the app's catalog: scripts/sync-strings.sh collects them with the app's.
+      - path: Shared/Localizable.xcstrings
+    info:
+      path: ScreenShareExtension/Info.plist
+      properties:
+        # The name in the system's list of broadcast destinations.
+        CFBundleDisplayName: Fish Pocket
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [zh-Hans, zh-Hant, en, es, ja, ko]
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.broadcast-services-upload
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SampleHandler
+          RPBroadcastProcessMode: RPBroadcastProcessModeSampleBuffer
+        DshAppGroup: $(DSH_APP_GROUP)
+    dependencies:
+      - sdk: ReplayKit.framework
+    entitlements:
+      path: ScreenShareExtension/DshScreenShare.entitlements
+      properties:
+        com.apple.security.application-groups: ["$(DSH_APP_GROUP)"]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wsw.dsh-ios.ScreenShare
   # The watch app: draws the snapshot the phone sends over WatchConnectivity (DshIOS/WatchLink.swift)
   # and sends back approvals and 「继续」. No engine, no network of its own.
   DshWatch:

@@ -47,6 +47,11 @@ enum WhatsNew {
     /// Newest first. Until the app reaches an entry's version (and build, when it names one),
     /// the entry is not shown. Entries of one version are shown together, newest first.
     static let releases: [Release] = [
+        Release(version: "1.2.2", build: 126, features: [
+            Feature(symbol: "rectangle.on.rectangle",
+                    title: "通话时共享屏幕",
+                    detail: "语音通话里点右上角的「共享屏幕」，然后切到任何 App 边看边问：你每说一句话，它都会看一眼你当时的屏幕。要用能看图的模型。"),
+        ]),
         Release(version: "1.2.2", build: 125, features: [
             Feature(symbol: "phone.and.waveform",
                     title: "和智能体打电话",

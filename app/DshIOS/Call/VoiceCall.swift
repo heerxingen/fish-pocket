@@ -193,6 +193,8 @@ final class VoiceCall {
     let botId: String?
     let title: String
     let levels = CallLevels()
+    /// 共享屏幕: the screen goes with what the user says.
+    let screenShare = CallScreenShare()
 
     private(set) var phase = Phase.connecting {
         didSet {
@@ -233,6 +235,9 @@ final class VoiceCall {
     @ObservationIgnored private var idleTimerWas = false
     /// What the user is saying, or said last (for the diagnostics).
     @ObservationIgnored private var heard = ""
+    /// The last message on its way (with the screen first, when it is shared): the next waits
+    /// for it, so messages reach the conversation in the order they were said.
+    @ObservationIgnored private var sending: Task<Void, Never>?
 
     /// A message went out; its turn has not started yet.
     @ObservationIgnored private var armed = false
@@ -330,6 +335,10 @@ final class VoiceCall {
         phase = .listening
         startActivity()
         watchIdle()
+        if CallScreenShare.available {
+            screenShare.onChange = { [weak self] sharing in self?.screenShared(sharing) }
+            screenShare.begin()
+        }
     }
 
     func hangUp() {
@@ -359,6 +368,10 @@ final class VoiceCall {
     }
 
     private func teardown() {
+        screenShare.onChange = nil
+        screenShare.end()
+        sending?.cancel()
+        sending = nil
         levels.stopSampling()
         recognizer?.stop()
         recognizer = nil
@@ -592,6 +605,40 @@ final class VoiceCall {
         }
     }
 
+    // MARK: The shared screen
+
+    /// The broadcast started or stopped. Once it starts the call steps aside to its bubble, so
+    /// what is shared is the app behind it, or wherever the user goes.
+    private func screenShared(_ sharing: Bool) {
+        log("screen sharing \(sharing ? "started" : "stopped")")
+        guard !ended else { return }
+        stillHere()
+        if sharing {
+            Haptics.firm()
+            CallCenter.shared.minimize()
+        } else {
+            Haptics.select()
+        }
+    }
+
+    /// What `CallScreenShare.handOver` gave, to `POST /api/ios-call/screen`. A screen that does
+    /// not get there leaves the message to go without it.
+    private func handOver(_ screen: [String: Any]) async {
+        var body = screen
+        body["sessionId"] = sessionId
+        let client = app.client
+        var request = client.request(client.origin.appendingPathComponent("api/ios-call/screen"))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        request.timeoutInterval = 5
+        let started = Date()
+        let status = await Task.detached { () -> Int? in
+            (try? await client.session.data(for: request)).flatMap { ($0.1 as? HTTPURLResponse)?.statusCode }
+        }.value
+        log("screen \(screen["state"] as? String ?? "?") handed over in \(Int(Date().timeIntervalSince(started) * 1000)) ms: \(status.map(String.init) ?? "failed")")
+    }
+
     // MARK: Hearing the user
 
     private func recognized(_ event: CallRecognizer.Event) {
@@ -655,9 +702,19 @@ final class VoiceCall {
         replyText = ""
         armed = true
         phase = .thinking
-        // Sent like a message typed into the conversation (its bubble shows at once); while the
-        // stopped turn winds down it waits in the queue.
-        session.composer.send(prompt: text)
+        // The screen as it is now goes to the engine first, for the turn this message starts.
+        let screen = screenShare.handOver()
+        let previous = sending
+        sending = Task { [weak self] in
+            await previous?.value
+            if let screen, let self {
+                await self.handOver(screen)
+            }
+            guard let self, !self.ended, !Task.isCancelled else { return }
+            // Sent like a message typed into the conversation (its bubble shows at once); while
+            // the stopped turn winds down it waits in the queue.
+            session.composer.send(prompt: text)
+        }
         recognizer?.setContext(context())
         watchdog?.cancel()
         watchdog = Task { [weak self] in

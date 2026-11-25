@@ -243,6 +243,11 @@ struct CallScreen: View {
             .accessibilityLabel("最小化通话")
             .opacity(call.ended ? 0 : 1)
             Spacer()
+            if CallScreenShare.available, call.failure == nil {
+                CallScreenShareButton(share: call.screenShare)
+                    .disabled(call.ended || call.phase == .connecting)
+                    .opacity(call.ended ? 0 : call.phase == .connecting ? 0.4 : 1)
+            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 8)
