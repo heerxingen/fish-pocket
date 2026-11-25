@@ -74,6 +74,8 @@ import WebKit
         let revived = tab.page == nil
         let page = browser.revive(tab)
         var answer = try await page.serially {
+            // The agent comes back to the browser, rather than going on between two operations.
+            if page.presence.driver == nil { browser.previewHidden = false }
             page.presence.began(op == "new_tab" ? "open" : op == "select_tab" ? "read" : op, driver: session)
             // The panel's stop button ends the turn of the conversation that owns this browser.
             page.presence.stop = { [weak app] in

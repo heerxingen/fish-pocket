@@ -116,15 +116,24 @@ extension BrowserPage {
 }
 
 /// The page the agent works in, small, over the foot of the chat; a tap opens the browser. Until
-/// there is a picture, a globe.
+/// there is a picture, a globe. Its ✕ puts the picture away and leaves the tabs open.
+///
+/// In a group chat it is one of several: whose it is shows in its corner, and the others lie
+/// behind it as the edges of more cards.
 struct BrowserThumbnail: View {
     let browser: BrowserModel
+    /// Whose browser it is, in a group chat.
+    var owner: GroupBrowser.Owner?
+    /// How many other browsers lie behind it.
+    var behind = 0
     let action: () -> Void
+    let close: () -> Void
 
     var body: some View {
         let size = browser.thumbnailSize
         let shape = RoundedRectangle(cornerRadius: 12, style: .continuous)
         let site = FullScreenBrowser.site(browser.url)
+        let busy = browser.agentBusy || browser.selected?.page?.loading == true
         Button {
             Haptics.tap()
             action()
@@ -158,8 +167,8 @@ struct BrowserThumbnail: View {
             .frame(width: size.width, height: size.height)
             .clipShape(shape)
             .overlay(shape.strokeBorder(Palette.stroke))
-            .overlay(alignment: .topTrailing) {
-                if browser.agentBusy || browser.selected?.page?.loading == true {
+            .overlay(alignment: .topLeading) {
+                if owner == nil, busy {
                     Circle()
                         .fill(Palette.running)
                         .frame(width: 8, height: 8)
@@ -167,14 +176,113 @@ struct BrowserThumbnail: View {
                         .padding(6)
                 }
             }
+            .background {
+                // The others, as the edges of cards behind: two at most, however many there are.
+                if behind > 0 {
+                    ZStack {
+                        ForEach(Array(1...min(behind, 2)), id: \.self) { depth in
+                            shape.fill(Palette.background)
+                                .overlay(shape.strokeBorder(Palette.stroke))
+                                .scaleEffect(1 - 0.03 * CGFloat(depth))
+                                .offset(x: 5 * CGFloat(depth), y: -5 * CGFloat(depth))
+                                .opacity(1 - 0.12 * CGFloat(depth))
+                                .zIndex(-Double(depth))
+                        }
+                    }
+                }
+            }
             .shadow(color: .black.opacity(0.12), radius: 8, y: 3)
             .contentShape(shape)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label(site: site))
+        .overlay(alignment: .topLeading) {
+            if let owner {
+                OwnerMark(owner: owner, busy: busy, behind: behind)
+                    .offset(x: -8, y: -8)
+                    .allowsHitTesting(false)
+            }
+        }
+        // Over the corner, as a badge: closing the picture is not closing a tab.
+        .overlay(alignment: .topTrailing) {
+            Button {
+                Haptics.tap()
+                close()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(Palette.secondary)
+                    .frame(width: 20, height: 20)
+                    .background(Palette.background, in: Circle())
+                    .overlay(Circle().strokeBorder(Palette.stroke))
+                    .shadow(color: .black.opacity(0.12), radius: 3, y: 1)
+                    .hitTarget(32)
+            }
+            .buttonStyle(.plain)
+            .offset(x: 10, y: -10)
+            .accessibilityLabel(Text("关闭预览"))
+        }
         .transition(.opacity.combined(with: .scale(scale: 0.8, anchor: .bottomLeading)))
-        .accessibilityLabel(Text("浏览器：\(site ?? "")"))
         .onAppear { browser.watchThumbnail(true) }
         .onDisappear { browser.watchThumbnail(false) }
         .onChange(of: browser.selectedId) { _, _ in browser.thumbnailStale(settle: 0) }
+    }
+
+    private func label(site: String?) -> Text {
+        switch owner {
+        case nil: Text("浏览器：\(site ?? "")")
+        case .group: Text("群聊的浏览器：\(site ?? "")")
+        case .member(_, let name): Text("\(name)的浏览器：\(site ?? "")")
+        }
+    }
+}
+
+/// Whose browser a group chat's picture is: the member's face (the group's own: the group's
+/// mark), ringed green while it works there, and how many more there are.
+private struct OwnerMark: View {
+    let owner: GroupBrowser.Owner
+    let busy: Bool
+    let behind: Int
+
+    var body: some View {
+        HStack(spacing: 3) {
+            OwnerFace(owner: owner, size: 24)
+                .padding(2)
+                .background(Palette.background, in: Circle())
+                .overlay {
+                    if busy { Circle().strokeBorder(Palette.running, lineWidth: 1.5) }
+                }
+            if behind > 0 {
+                Text(verbatim: "+\(behind)")
+                    .font(.caption2.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(Palette.onInk)
+                    .padding(.horizontal, 6)
+                    .frame(height: 18)
+                    .background(Palette.ink, in: Capsule())
+                    .overlay(Capsule().strokeBorder(Palette.background, lineWidth: 2).padding(-2))
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// A browser's owner as a face: a member's own avatar, the group's mark for the group's own.
+struct OwnerFace: View {
+    @Environment(AppModel.self) private var app
+    let owner: GroupBrowser.Owner
+    var size: CGFloat = 24
+
+    var body: some View {
+        switch owner {
+        case .group:
+            Image(systemName: "person.2.fill")
+                .font(.system(size: size * 0.42))
+                .foregroundStyle(Palette.secondary)
+                .frame(width: size, height: size)
+                .background(Palette.control, in: Circle())
+        case .member(let bot, let name):
+            BotAvatar(bot: bot.flatMap(app.botTeam.bot), name: name, size: size)
+        }
     }
 }

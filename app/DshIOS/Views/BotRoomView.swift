@@ -11,12 +11,14 @@ struct BotChrome {
     /// The chat has the conversation's tools: the workbench, the browser and the background jobs
     /// floating over its foot. A Bot's own chat does; a group's session only relays its members' replies.
     var tools = false
+    /// A group chat: its picture and its browser are its members' and its own (`GroupBrowsers`).
+    var roomId: String?
 }
 
 /// What a Bot's chat menu opens of the conversation's tools.
 struct BotChatTools {
-    /// Shows or hides the workbench, where the tab last looked at is.
-    let toggleWorkbench: () -> Void
+    /// Shows or hides the workbench, where the tab last looked at is. A group chat has none.
+    let toggleWorkbench: (() -> Void)?
     /// The browser alone, full screen.
     let openBrowser: () -> Void
 }
@@ -175,7 +177,8 @@ struct BotRoomView: View {
                 .buttonStyle(.plain)
                 .accessibilityHint("查看群聊设置")),
                 accessory: AnyView(RoomMentions(room: room)),
-                menu: { model, _ in AnyView(BotChatMenu(target: .room(room.id), model: model)) }
+                menu: { model, tools in AnyView(BotChatMenu(target: .room(room.id), model: model, tools: tools)) },
+                roomId: room.id
             ))
             .environment(\.botTimeline, BotTimeline(room: true, earlierFrom: room.json["ownParts"].array.isEmpty ? nil : room.sessionId, showsThinking: team.showsThinking, sessionId: room.sessionId))
             .environment(\.botComposer, .room(room.id))

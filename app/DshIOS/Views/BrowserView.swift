@@ -680,12 +680,20 @@ private struct TabCount: View {
 /// The browser opened from the chat (full screen, or as a sheet for a link in a reply): the page alone, without the workbench's other tabs.
 struct FullScreenBrowser: View {
     let model: BrowserModel
+    /// A group chat's: a row under the bar switches between its members' browsers and its own.
+    var roomId: String?
     let close: () -> Void
+    @Environment(AppModel.self) private var app
+    /// The browser picked in that row; until then, the one it opened on.
+    @State private var picked: BrowserModel?
 
     var body: some View {
+        let browsers = roomId.map { GroupBrowsers.list(roomId: $0, in: app) } ?? []
+        let shown = picked ?? model
         NavigationStack {
-            WorkbenchBrowser(model: model)
-                .navigationTitle(Self.site(model.url) ?? String(localized: "浏览器"))
+            WorkbenchBrowser(model: shown)
+                .id(ObjectIdentifier(shown))
+                .navigationTitle(Self.site(shown.url) ?? String(localized: "浏览器"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar(.visible, for: .navigationBar)
                 .toolbar {
@@ -694,6 +702,12 @@ struct FullScreenBrowser: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: close) { Image(systemName: "chevron.down") }
                             .accessibilityLabel("收起浏览器")
+                    }
+                }
+                .safeAreaInset(edge: .top, spacing: 0) {
+                    // One browser alone needs no switch.
+                    if browsers.count > 1 || (browsers.count == 1 && browsers[0].model !== shown) {
+                        BrowserOwnerRow(browsers: browsers, shown: shown) { picked = $0 }
                     }
                 }
         }
@@ -749,6 +763,56 @@ private struct BrowserWebView: UIViewRepresentable {
             webView.frame = bounds
             addSubview(webView)
             setNeedsLayout()
+        }
+    }
+}
+
+/// A group chat's browsers, one capsule each, over the page: the group's own and each member's that
+/// has been used, the one shown filled. A green dot: that one's agent is at work there.
+private struct BrowserOwnerRow: View {
+    let browsers: [GroupBrowser]
+    let shown: BrowserModel
+    let pick: (BrowserModel) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(browsers) { browser in
+                    let on = browser.model === shown
+                    Button {
+                        Haptics.select()
+                        pick(browser.model)
+                    } label: {
+                        HStack(spacing: 6) {
+                            OwnerFace(owner: browser.owner, size: 24)
+                            Text(name(of: browser.owner)).font(.subheadline.weight(.medium)).lineLimit(1)
+                            if browser.busy {
+                                Circle().fill(Palette.running).frame(width: 7, height: 7)
+                            }
+                        }
+                        .foregroundStyle(on ? Palette.onInk : Palette.ink)
+                        .padding(.leading, 5)
+                        .padding(.trailing, 12)
+                        .frame(height: 34)
+                        .background(on ? Palette.ink : Palette.field, in: Capsule())
+                        .hitTarget()
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(on ? .isSelected : [])
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 2)
+        }
+        .padding(.bottom, 6)
+        .background(Palette.background)
+        .overlay(alignment: .bottom) { Palette.stroke.frame(height: 0.5) }
+    }
+
+    private func name(of owner: GroupBrowser.Owner) -> String {
+        switch owner {
+        case .group: String(localized: "群聊")
+        case .member(_, let name): name
         }
     }
 }

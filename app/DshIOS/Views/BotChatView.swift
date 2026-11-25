@@ -309,8 +309,20 @@ struct BotChatMenu: View {
             if let tools {
                 // The browser has a line of its own besides the workbench's tab: it opens full screen, the page alone.
                 Section {
-                    Button(action: tools.toggleWorkbench) { Label("工作台", systemImage: "apple.terminal") }
-                    Button(action: tools.openBrowser) { Label("浏览器", systemImage: "globe") }
+                    if let toggleWorkbench = tools.toggleWorkbench {
+                        Button(action: toggleWorkbench) { Label("工作台", systemImage: "apple.terminal") }
+                    }
+                    // A group chat's says how many members' browsers it switches between; a
+                    // menu takes a second line only from a second Text set out plainly.
+                    if case .room(let id) = target, case let used = GroupBrowsers.list(roomId: id, in: app).filter({ $0.owner != .group }).count, used > 0 {
+                        Button(action: tools.openBrowser) {
+                            Text("浏览器")
+                            Text("\(used) 位成员用过")
+                            Image(systemName: "globe")
+                        }
+                    } else {
+                        Button(action: tools.openBrowser) { Label("浏览器", systemImage: "globe") }
+                    }
                 }
             }
             switch target {

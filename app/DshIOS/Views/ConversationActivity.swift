@@ -8,35 +8,56 @@ struct ConversationActivity: View {
     let jobs: JobsModel
     /// The workbench already shows the browser beside the conversation (iPad).
     let browserShown: Bool
+    /// A group chat: its members' browsers and its own, one picture for all of them.
+    var roomId: String?
+    /// The background jobs chip: a group's session runs none of its own to show.
+    var showsJobs = true
     let openBrowser: () -> Void
     let openJobs: () -> Void
     @Environment(AppModel.self) private var app
 
-    /// A subagent works in the browser of the conversation that started it.
+    /// What the picture shows: the browser in front, whose it is in a group chat, and the others.
+    struct Picture {
+        let model: BrowserModel
+        var owner: GroupBrowser.Owner?
+        /// Every browser the picture stands for, the one in front among them.
+        var all: [BrowserModel]
+    }
+
+    /// A subagent works in the browser of the conversation that started it. Not while the user has
+    /// closed its picture; in a group chat, not until any of them is used again.
     @MainActor
-    static func browser(of sessionId: String, in app: AppModel) -> BrowserModel? {
-        guard let model = BrowserModel.existing(BrowserAgent.owner(of: sessionId, in: app)), model.hasPages else { return nil }
-        return model
+    static func picture(of sessionId: String, roomId: String?, in app: AppModel) -> Picture? {
+        if let roomId {
+            let browsers = GroupBrowsers.list(roomId: roomId, in: app)
+            guard browsers.contains(where: { !$0.model.previewHidden }), let front = GroupBrowsers.latest(browsers) else { return nil }
+            return Picture(model: front.model, owner: front.owner, all: browsers.map(\.model))
+        }
+        guard let model = BrowserModel.existing(BrowserAgent.owner(of: sessionId, in: app)), model.hasPages, !model.previewHidden else { return nil }
+        return Picture(model: model, all: [model])
     }
 
     /// How much room the timeline leaves under its last row, so what floats here never sits on it.
     @MainActor
-    static func room(sessionId: String, jobs: JobsModel, browserShown: Bool, in app: AppModel) -> CGFloat {
-        if !browserShown, let browser = browser(of: sessionId, in: app) { return browser.thumbnailSize.height + 12 }
-        return jobs.visibleCount > 0 ? 48 : 0
+    static func room(sessionId: String, roomId: String?, showsJobs: Bool, jobs: JobsModel, browserShown: Bool, in app: AppModel) -> CGFloat {
+        if !browserShown, let picture = picture(of: sessionId, roomId: roomId, in: app) { return picture.model.thumbnailSize.height + 12 }
+        return showsJobs && jobs.visibleCount > 0 ? 48 : 0
     }
-
-    private var browser: BrowserModel? { Self.browser(of: sessionId, in: app) }
 
     var body: some View {
         // Read here so the chips follow a browser made after this view.
-        let browser = browserShown ? nil : browser
+        let picture = browserShown ? nil : Self.picture(of: sessionId, roomId: roomId, in: app)
         HStack(alignment: .bottom, spacing: 8) {
-            if let browser {
+            if let picture {
                 // A view of its own: a new picture redraws it alone, and it is the one that watches.
-                BrowserThumbnail(browser: browser, action: openBrowser).id(ObjectIdentifier(browser))
+                BrowserThumbnail(
+                    browser: picture.model, owner: picture.owner, behind: picture.all.count - 1,
+                    action: openBrowser,
+                    close: { for model in picture.all { model.previewHidden = true } }
+                )
+                .id(ObjectIdentifier(picture.model))
             }
-            if jobs.visibleCount > 0 {
+            if showsJobs, jobs.visibleCount > 0 {
                 chip(
                     text: jobs.live.isEmpty ? Text("\(jobs.visibleCount) 个后台任务") : Text("\(jobs.live.count) 个后台任务运行中"),
                     running: !jobs.live.isEmpty,
@@ -44,7 +65,7 @@ struct ConversationActivity: View {
                 )
             }
         }
-        .animation(.snappy(duration: 0.18), value: browser == nil)
+        .animation(.snappy(duration: 0.18), value: picture.map { ObjectIdentifier($0.model) })
         .animation(.snappy(duration: 0.18), value: jobs.visibleCount)
     }
 

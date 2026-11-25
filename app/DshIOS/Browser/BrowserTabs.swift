@@ -74,6 +74,12 @@ final class BrowserModel {
     var hasPages: Bool { tabs.contains(where: \.started) }
     /// The agent is at work in one of the tabs.
     var agentBusy: Bool { tabs.contains { $0.page?.agentBusy == true } }
+    /// The user closed the chat's small picture of the page (`BrowserThumbnail`). The tabs stay as
+    /// they are; the picture comes back when the agent next comes to the browser or the user opens a link.
+    var previewHidden = false
+    /// When the agent or a link the user tapped last came here: a group chat shows the browser
+    /// used last in front (`GroupBrowsers`).
+    private(set) var lastUsed: Date?
 
     func tab(_ id: String) -> Tab? { tabs.first { $0.id == id } }
 
@@ -140,6 +146,8 @@ final class BrowserModel {
 
     /// A link the user tapped: always a tab of its own, so no page is replaced; a blank tab in front takes it.
     func openLink(_ url: String) {
+        previewHidden = false
+        lastUsed = Date()
         if let tab = selected, !tab.started, let page = tab.page {
             page.go(url)
         } else {
@@ -303,6 +311,7 @@ final class BrowserModel {
     func agentUses(_ tab: Tab) {
         agentTabId = tab.id
         tab.used = Date()
+        lastUsed = tab.used
     }
 
     func forgetAgentTab() { agentTabId = nil }

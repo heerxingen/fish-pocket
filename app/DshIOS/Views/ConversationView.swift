@@ -171,7 +171,7 @@ struct ConversationView: View {
                 TimelineRows {
                     TimelineList(model: model)
                         .modifier(LinkOpening())
-                    TimelineFoot(sessionId: sessionId, jobs: jobs, browserShown: browserBeside, chips: !blank && hasTools).id(Self.bottomId)
+                    TimelineFoot(sessionId: sessionId, roomId: bot?.roomId, showsJobs: hasTools, jobs: jobs, browserShown: browserBeside, chips: !blank && (hasTools || bot?.roomId != nil)).id(Self.bottomId)
                 }
             }
             // Until the first read answers; a conversation known to be blank shows its own start.
@@ -244,10 +244,11 @@ struct ConversationView: View {
             }
             // Opposite the scroll buttons: the agent's page and its background jobs, one tap from the chat.
             .overlay(alignment: .bottomLeading) {
-                if !blank && hasTools {
+                if !blank && (hasTools || bot?.roomId != nil) {
                     ConversationActivity(
                         sessionId: sessionId, jobs: jobs,
                         browserShown: browserBeside,
+                        roomId: bot?.roomId, showsJobs: hasTools,
                         openBrowser: openBrowser,
                         openJobs: { headerSheet = .jobs }
                     )
@@ -376,7 +377,9 @@ struct ConversationView: View {
                     // its background jobs float over the chat's foot.
                     if bot == nil { SessionHeaderActions(sessionId: sessionId) { headerSheet = $0 } }
                     if let menu = bot?.menu {
-                        menu(model, hasTools ? BotChatTools(toggleWorkbench: toggleWorkbench, openBrowser: openBrowser) : nil)
+                        // A group chat has no workbench of its own, only its members' browsers.
+                        menu(model, hasTools ? BotChatTools(toggleWorkbench: toggleWorkbench, openBrowser: openBrowser)
+                            : bot?.roomId != nil ? BotChatTools(toggleWorkbench: nil, openBrowser: openBrowser) : nil)
                     }
                     // A Bot's chat keeps its bar to the title and its menu: the workbench is in the menu.
                     if bot == nil {
@@ -412,7 +415,7 @@ struct ConversationView: View {
         }
         .fullScreenCover(isPresented: Binding(get: { fullBrowser != nil }, set: { if !$0 { fullBrowser = nil } })) {
             if let fullBrowser {
-                FullScreenBrowser(model: fullBrowser) {
+                FullScreenBrowser(model: fullBrowser, roomId: bot?.roomId) {
                     // The chat's picture of the page is taken while the page is still on screen.
                     fullBrowser.thumbnailStale(settle: 0)
                     self.fullBrowser = nil
@@ -506,9 +509,12 @@ struct ConversationView: View {
 
     /// From the chat the browser opens full screen, the page alone: the workbench's other tabs are not
     /// what the user came for. A subagent's page is its parent conversation's.
+    /// A group chat's opens on the browser its picture shows, the one used last; with none used
+    /// yet, on the group's own.
     private func openBrowser() {
         dismissKeyboard()
-        fullBrowser = BrowserModel.session(BrowserAgent.owner(of: sessionId, in: app), origin: app.client.origin)
+        let latest = bot?.roomId.flatMap { GroupBrowsers.latest(GroupBrowsers.list(roomId: $0, in: app)) }
+        fullBrowser = latest?.model ?? BrowserModel.session(BrowserAgent.owner(of: sessionId, in: app), origin: app.client.origin)
     }
 
     private func openWorkbench(_ tab: WorkbenchTab) {
@@ -1050,13 +1056,15 @@ private struct BrowserLinkScope: ViewModifier {
 private struct TimelineFoot: View {
     @Environment(AppModel.self) private var app
     let sessionId: String
+    let roomId: String?
+    let showsJobs: Bool
     let jobs: JobsModel
     let browserShown: Bool
     /// The conversation shows chips at all.
     let chips: Bool
 
     var body: some View {
-        Color.clear.frame(height: chips ? max(1, ConversationActivity.room(sessionId: sessionId, jobs: jobs, browserShown: browserShown, in: app)) : 1)
+        Color.clear.frame(height: chips ? max(1, ConversationActivity.room(sessionId: sessionId, roomId: roomId, showsJobs: showsJobs, jobs: jobs, browserShown: browserShown, in: app)) : 1)
     }
 }
 
