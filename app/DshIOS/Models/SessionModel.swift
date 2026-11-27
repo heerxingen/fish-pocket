@@ -295,8 +295,8 @@ final class SessionModel {
     /// durable ids the message part. Pair them, so an open sheet stays on the same text.
     private func bindSettledReasoning(_ event: JSON) {
         guard event["type"].string == "assistant/message",
-              let seq = event["seq"].int,
-              let parts = event["data"]["message"]["content"].array else { return }
+              let seq = event["seq"].int else { return }
+        let parts = event["data"]["message"]["content"].array
         for (index, part) in parts.enumerated() where part["type"].string == "reasoning" {
             let liveId = "live-\(liveGeneration)-\(index)"
             guard let settled = part["text"].string, !settled.isEmpty,
